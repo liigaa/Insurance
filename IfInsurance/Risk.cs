@@ -16,5 +16,11 @@ namespace IfInsurance
         /// Risk yearly price
         /// </summary>
         public decimal YearlyPrice { get; set; }
+
+        public Risk(string name, decimal yearlyPrice)
+        {
+            Name = name;
+            YearlyPrice = yearlyPrice;
+        }
     }
 }
