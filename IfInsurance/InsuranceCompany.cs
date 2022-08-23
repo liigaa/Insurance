@@ -35,17 +35,47 @@ namespace IfInsurance
 
         public void AddRisk(string nameOfInsuredObject, Risk risk, DateTime validFrom)
         {
-            throw new NotImplementedException();
+            foreach (var policy in _policies)
+            {
+                if (policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == validFrom)
+                {
+                    policy.InsuredRisks.Add(risk);
+                }
+            }
         }
 
         public IPolicy GetPolicy(string nameOfInsuredObject, DateTime effectiveDate)
         {
-            throw new NotImplementedException();
+            foreach (var policy in _policies)
+            {
+                if(policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == effectiveDate)
+                {
+                    return policy;
+                }
+            }
+            throw new ArgumentException("There are not such a policy");
         }
 
         public IPolicy SellPolicy(string nameOfInsuredObject, DateTime validFrom, short validMonths, IList<Risk> selectedRisks)
         {
-            throw new NotImplementedException();
+
+            if(validFrom < DateTime.Now)
+            {
+                throw new DataMisalignedException("Cannot be policy effective date in past");
+            }
+            foreach(Policy policy in _policies)
+            {
+                if(policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == validFrom)
+                {
+                    throw new ArgumentException("Cannot be policy with same efective date");
+                }
+            }
+
+            var validTill = validFrom.AddMonths(validMonths);
+            var premium = selectedRisks.Sum(risk => risk.YearlyPrice / 12 * validMonths);
+            var soldPolicy =  new Policy(nameOfInsuredObject, validFrom, validTill, premium, selectedRisks);
+            _policies.Add(soldPolicy);
+            return soldPolicy;
         }
     }
 }
