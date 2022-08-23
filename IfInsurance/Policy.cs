@@ -8,14 +8,29 @@ namespace IfInsurance
 {
     public class Policy : IPolicy
     {
-        public string NameOfInsuredObject { get; }
+        private string _nameOfInsuredObject;
+        private DateTime _validFrom;
+        private DateTime _validTill;
+        private decimal _premium;
+        private IList<Risk> _insuredRisks;
 
-        public DateTime ValidFrom { get; }
+        public Policy(string nameOfInsuredObject, DateTime validFrom, DateTime validTill, decimal premium, IList<Risk> insuredRisks)
+        {
+            _nameOfInsuredObject = nameOfInsuredObject;
+            _validFrom = validFrom;
+            _validTill = validTill;
+            _premium = premium;
+            _insuredRisks = insuredRisks;
+        }
 
-        public DateTime ValidTill { get; }
+        public string NameOfInsuredObject => _nameOfInsuredObject;        
 
-        public decimal Premium { get; }
+        public DateTime ValidFrom => _validFrom;        
 
-        public IList<Risk> InsuredRisks { get; }
+        public DateTime ValidTill => _validTill;
+
+        public decimal Premium => _premium;
+
+        public IList<Risk> InsuredRisks => _insuredRisks;
     }
 }
