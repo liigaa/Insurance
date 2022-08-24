@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IfInsurance.Exceptions;
 
 namespace IfInsurance
 {
@@ -12,11 +11,11 @@ namespace IfInsurance
         private IList<Risk> _availableRisks;
         private IList<Policy> _policies;
 
-        public InsuranceCompany(string name, IList<Risk> availableRisks)
+        public InsuranceCompany(string name, IList<Risk> availableRisks, IList<Policy> policies)
         {
             _name = name;
             _availableRisks = availableRisks;
-            _policies = new List<Policy>();
+            _policies = policies;
         }
 
         public string Name => _name;
@@ -46,14 +45,10 @@ namespace IfInsurance
 
         public IPolicy GetPolicy(string nameOfInsuredObject, DateTime effectiveDate)
         {
-            foreach (var policy in _policies)
-            {
-                if(policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == effectiveDate)
-                {
-                    return policy;
-                }
-            }
-            throw new ArgumentException("There are not such a policy");
+            var policy = FindPolicy(nameOfInsuredObject, effectiveDate);
+            if (policy != null)
+                return policy;
+            throw new PolicyNotFoundException();
         }
 
         public IPolicy SellPolicy(string nameOfInsuredObject, DateTime validFrom, short validMonths, IList<Risk> selectedRisks)
@@ -63,12 +58,10 @@ namespace IfInsurance
             {
                 throw new DataMisalignedException("Cannot be policy effective date in past");
             }
-            foreach(Policy policy in _policies)
+            var policy = FindPolicy(nameOfInsuredObject, validFrom);
+            if(policy != null)
             {
-                if(policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == validFrom)
-                {
-                    throw new ArgumentException("Cannot be policy with same efective date");
-                }
+                throw new ArgumentException();
             }
 
             var validTill = validFrom.AddMonths(validMonths);
@@ -76,6 +69,20 @@ namespace IfInsurance
             var soldPolicy =  new Policy(nameOfInsuredObject, validFrom, validTill, premium, selectedRisks);
             _policies.Add(soldPolicy);
             return soldPolicy;
+        }
+
+        private IPolicy FindPolicy(string insuredObject, DateTime validFrom)
+        {
+            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom == validFrom);
+            //^ tas pats kas apakšā
+            //foreach (var policy in _policies)
+            //{
+            //    if (policy.NameOfInsuredObject == insuredObject && policy.ValidFrom == validFrom)
+            //    {
+            //        return policy;
+            //    }
+            //}
+            //return null;
         }
     }
 }

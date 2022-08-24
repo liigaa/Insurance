@@ -8,19 +8,29 @@ namespace IfInsurance
 {
     public struct Risk
     {
+        private string _name;
+        private decimal _yearlyPrice;
         /// <summary>
         /// Unique name of the risk
         /// </summary>
-        public string Name { get; set; }
+        public string Name 
+        { 
+            get => _name; 
+            set => _name = value; 
+        }
         /// <summary>
         /// Risk yearly price
         /// </summary>
-        public decimal YearlyPrice { get; set; }
+        public decimal YearlyPrice 
+        { 
+            get => _yearlyPrice; 
+            set => _yearlyPrice = value; 
+        }
 
         public Risk(string name, decimal yearlyPrice)
         {
-            Name = name;
-            YearlyPrice = yearlyPrice;
+            _name = name;
+            _yearlyPrice = yearlyPrice;
         }
     }
 }
