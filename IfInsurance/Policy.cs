@@ -29,7 +29,11 @@ namespace IfInsurance
 
         public DateTime ValidTill => _validTill;
 
-        public decimal Premium => _premium;
+        public decimal Premium
+        {
+            get => _premium;
+            set => _premium = value;
+        } 
 
         public IList<Risk> InsuredRisks => _insuredRisks;
     }

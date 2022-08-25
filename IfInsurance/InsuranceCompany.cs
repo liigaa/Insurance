@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using IfInsurance.Exceptions;
@@ -34,13 +35,17 @@ namespace IfInsurance
 
         public void AddRisk(string nameOfInsuredObject, Risk risk, DateTime validFrom)
         {
-            foreach (var policy in _policies)
+            var policy = FindPolicy(nameOfInsuredObject, validFrom);
+            if(policy != null)
             {
-                if (policy.NameOfInsuredObject == nameOfInsuredObject && policy.ValidFrom == validFrom)
-                {
-                    policy.InsuredRisks.Add(risk);
-                }
+                policy.InsuredRisks.Add(risk);                
+                var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
+                GetChangedPremium((Policy)policy, risk, (short)month);
             }
+            else
+            {
+                throw new PolicyNotFoundException();
+            }            
         }
 
         public IPolicy GetPolicy(string nameOfInsuredObject, DateTime effectiveDate)
@@ -53,18 +58,24 @@ namespace IfInsurance
 
         public IPolicy SellPolicy(string nameOfInsuredObject, DateTime validFrom, short validMonths, IList<Risk> selectedRisks)
         {
-
-            if(validFrom < DateTime.Now)
-            {
-                throw new DataMisalignedException("Cannot be policy effective date in past");
-            }
-            var policy = FindPolicy(nameOfInsuredObject, validFrom);
-            if(policy != null)
-            {
-                throw new ArgumentException();
-            }
-
             var validTill = validFrom.AddMonths(validMonths);
+
+            if (validFrom < DateTime.Now)
+            {
+                throw new DateException();
+            }
+
+            foreach (var policy in _policies)
+            {
+                if (policy.NameOfInsuredObject == nameOfInsuredObject)
+                {
+                    if ((validFrom <= policy.ValidTill && validFrom >= policy.ValidFrom) || (validTill >= policy.ValidFrom && validTill <= policy.ValidTill))
+                    {
+                        throw new DateException("Can not be insurance in same period");
+                    }
+                }
+            }
+
             var premium = selectedRisks.Sum(risk => risk.YearlyPrice / 12 * validMonths);
             var soldPolicy =  new Policy(nameOfInsuredObject, validFrom, validTill, premium, selectedRisks);
             _policies.Add(soldPolicy);
@@ -83,6 +94,12 @@ namespace IfInsurance
             //    }
             //}
             //return null;
+        }
+
+        private void GetChangedPremium(Policy policy, Risk risks, short month)
+        {           
+            var premiumForNewRisk = risks.YearlyPrice / 12 * month;
+            policy.Premium += premiumForNewRisk;
         }
     }
 }
