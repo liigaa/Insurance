@@ -54,7 +54,7 @@ namespace InsuranceTest
         }
 
         [Test]
-        public void Company_SellPolicy_PolicyAddedToPolicyList()
+        public void Company_SellPolicy_Policy_Added_To_PolicyList()
         {
             var risks = _availableRisks.Take(2).ToList();
             _insuranceCompany.SellPolicy("House", new DateTime(2022, 10, 1), 12, risks);
@@ -116,7 +116,7 @@ namespace InsuranceTest
         }
 
         [Test]
-        public void Company_Find_Policy_By_ObjectName_And_ValidFrom_Date_Throw_Exeption()
+        public void Company__Cannot_Find_Policy_By_ObjectName_And_ValidFrom_Date_Throw_Exeption()
         {
             var date = new DateTime(2022, 11, 1);
             var policyObject = "Mazda";
@@ -133,7 +133,7 @@ namespace InsuranceTest
             var newRisk = new Risk("Fire", 150);
             var date = new DateTime(2022, 11, 1);
             var policyObject = "Mazda";
-            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 450, _availableRisks.Take(1).ToList());
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
             _soldPolicies.Add(policy);
             _insuranceCompany.AddRisk(policyObject, newRisk, date);
             policy.InsuredRisks.Count.Should().Be(2);
@@ -143,13 +143,40 @@ namespace InsuranceTest
         public void Company_GetNewPremium_When_Add_Risk()
         {
             var newRisk = new Risk("Fire", 150);
-            var date = new DateTime(2022, 11, 1);
+            var date = new DateTime(2023, 1, 1);
             var policyObject = "Mazda";
-            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 450, _availableRisks.Take(1).ToList());
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
             _soldPolicies.Add(policy);
-            _insuranceCompany.AddRisk(policyObject, newRisk, date);
-            policy.InsuredRisks.Count.Should().Be(2);
-            _soldPolicies.Last().Premium.Should().Be(954);
+            _insuranceCompany.AddRisk(policyObject, newRisk, date);           
+            _soldPolicies.Last().Premium.Should().Be(279);
+        }
+
+        [Test]
+        public void Company_Cannot_Add_New_Risk_To_Policy_Not_Valid_Date()
+        {
+            var newRisk = new Risk("Fire", 150);
+            var date = new DateTime(2022, 10, 1);
+            var policyObject = "Mazda";
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
+            _soldPolicies.Add(policy);
+            _insuranceCompany.Invoking(x => x.AddRisk(policyObject, newRisk, date))
+                    .Should()
+                    .Throw<PolicyNotFoundException>()
+                    .Where(t => t.Message.Contains("not"));
+        }
+
+        [Test]
+        public void Company_Cannot_Add_New_Risk_To_Policy_Not_Valid_Object()
+        {
+            var newRisk = new Risk("Fire", 150);
+            var date = new DateTime(2022, 12, 1);
+            var policyObject = "Renault";
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
+            _soldPolicies.Add(policy);
+            _insuranceCompany.Invoking(x => x.AddRisk(policyObject, newRisk, date))
+                    .Should()
+                    .Throw<PolicyNotFoundException>()
+                    .Where(t => t.Message.Contains("not"));
         }
     }
 }
