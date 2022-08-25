@@ -63,6 +63,14 @@ namespace InsuranceTest
         }
 
         [Test]
+        public void Company_GetPremium_When_Sell_Policy()
+        {
+            var risks = _availableRisks.Take(3).ToList();
+            _insuranceCompany.SellPolicy("House", new DateTime(2022, 10, 1), 12, risks);          
+            _soldPolicies.Last().Premium.Should().Be(954);
+        }
+
+        [Test]
         public void Company_Dont_Sell_Policy_In_Past()
         {
             var risks = _availableRisks.Take(2).ToList();           
@@ -73,16 +81,29 @@ namespace InsuranceTest
         }
 
         [Test]
-        public void Company_Dont_Sell_Policy_With_Same_Efective_Date()
+        public void Company_Dont_Sell_Policy_When_Start_Is_In_Same_Period()
         {
             var risks = _availableRisks.Take(2).ToList();
-            var date = new DateTime(2022, 10, 1);
+            var date = new DateTime(2022, 11, 1);
             var policyObject = "House";
             _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
             _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
                     .Should()
                     .Throw<DateException>()
-                    .WithMessage("Cannot be policy with same efective date");           
+                    .Where(t => t.Message.Contains("same"));           
+        }
+
+        [Test]
+        public void Company_Dont_Sell_Policy_When_End_Is_In_Same_Period()
+        {
+            var risks = _availableRisks.Take(2).ToList();
+            var date = new DateTime(2022, 9, 1);
+            var policyObject = "House";
+            _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
+            _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
+                    .Should()
+                    .Throw<DateException>()
+                    .Where(t => t.Message.Contains("same"));
         }
 
         [Test]
@@ -116,6 +137,19 @@ namespace InsuranceTest
             _soldPolicies.Add(policy);
             _insuranceCompany.AddRisk(policyObject, newRisk, date);
             policy.InsuredRisks.Count.Should().Be(2);
+        }
+
+        [Test]
+        public void Company_GetNewPremium_When_Add_Risk()
+        {
+            var newRisk = new Risk("Fire", 150);
+            var date = new DateTime(2022, 11, 1);
+            var policyObject = "Mazda";
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 450, _availableRisks.Take(1).ToList());
+            _soldPolicies.Add(policy);
+            _insuranceCompany.AddRisk(policyObject, newRisk, date);
+            policy.InsuredRisks.Count.Should().Be(2);
+            _soldPolicies.Last().Premium.Should().Be(954);
         }
     }
 }
