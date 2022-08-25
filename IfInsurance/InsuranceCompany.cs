@@ -35,17 +35,18 @@ namespace IfInsurance
 
         public void AddRisk(string nameOfInsuredObject, Risk risk, DateTime validFrom)
         {
-            var policy = FindPolicy(nameOfInsuredObject, validFrom);
-            if(policy != null)
+            foreach(Policy policy in _policies)
             {
-                policy.InsuredRisks.Add(risk);                
-                var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
-                GetChangedPremium((Policy)policy, risk, (short)month);
+                if(nameOfInsuredObject == policy.NameOfInsuredObject && validFrom >= policy.ValidFrom && validFrom <= policy.ValidTill)
+                {
+                    policy.InsuredRisks.Add(risk);
+                    var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
+                    GetChangedPremium((Policy)policy, risk, (short)month);
+                    return;
+                }
             }
-            else
-            {
-                throw new PolicyNotFoundException();
-            }            
+
+            throw new PolicyNotFoundException();
         }
 
         public IPolicy GetPolicy(string nameOfInsuredObject, DateTime effectiveDate)
