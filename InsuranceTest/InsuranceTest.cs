@@ -33,13 +33,19 @@ namespace InsuranceTest
         }
 
         [Test]
-        public void Company_CompanyNameShouldBeIf()
+        public void Company_CompanyName_Should_Be_If()
         {
             _insuranceCompany.Name.Should().Be("If");
         }
 
         [Test]
-        public void CompanyAddAvailableRisk()
+        public void Company_CompanyName_Should_NotBe_EmptyOrWhitespace()
+        {
+            _insuranceCompany.Name.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [Test]
+        public void Company_Add_AvailableRisk()
         {
             _availableRisks.Add(new Risk("Injuries", 150));
             _insuranceCompany.AvailableRisks.Should().BeEquivalentTo(_availableRisks);

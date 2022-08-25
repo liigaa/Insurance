@@ -16,13 +16,13 @@ namespace InsuranceTest
         [SetUp]
         public void Setup()
         {
-            _policyRisks = new List<Risk>();
+            _policyRisks = new List<Risk> { new Risk("Home", 450)};
             _policy = new Policy("Private home", new DateTime(2022, 10, 1), new DateTime(2022, 9, 30), 450, _policyRisks);
         }
 
         [Test]
         public void Policy_NameOfInsuredObject_ShouldBe_Private_home()
-        {
+        {          
             _policy.NameOfInsuredObject.Should().Be("Private home");
         }
 
@@ -30,6 +30,11 @@ namespace InsuranceTest
         public void Policy_ValidFromDate_Should_Be_2022_10_1()
         {
             _policy.ValidFrom.Should().BeSameDateAs(new DateTime(2022,10,1));
+        }
+        [Test]
+        public void PolicyRisk_Should_Be_Equal_PolicyInsuredRisks()
+        {
+            _policy.InsuredRisks.Should().BeEquivalentTo(_policyRisks);
         }
     }
 }

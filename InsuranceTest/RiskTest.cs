@@ -23,6 +23,11 @@ namespace InsuranceTest
         {
             _risk.Name.Should().Be("Home");
         }
+        [Test]
+        public void Risk_RiskName_Shoul_NotBe_Car()
+        {
+            _risk.Name.Should().NotBe("Car");
+        }
 
         [Test]
         public void Risk_RiskYearlyPriceShouldBe_145()
