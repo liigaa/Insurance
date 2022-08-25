@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IfInsurance.Exceptions
 {
-    internal class DateException : Exception
+    public class DateException : Exception
     {
         public DateException() : base("Cannot be policy effective date in past")
         {
