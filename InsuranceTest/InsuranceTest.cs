@@ -76,7 +76,7 @@ namespace InsuranceTest
             var risks = _availableRisks.Take(2).ToList();           
                 _insuranceCompany.Invoking(x => x.SellPolicy("House", new DateTime(2022, 8, 1), 12, risks))
                 .Should()
-                .Throw<DateException>()
+                .Throw<InvalidDateException>()
                 .WithMessage("*past");                       
         }
 
@@ -89,7 +89,7 @@ namespace InsuranceTest
             _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
             _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
                     .Should()
-                    .Throw<DateException>()
+                    .Throw<InvalidDateException>()
                     .Where(t => t.Message.Contains("same"));           
         }
 
@@ -102,7 +102,7 @@ namespace InsuranceTest
             _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
             _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
                     .Should()
-                    .Throw<DateException>()
+                    .Throw<InvalidDateException>()
                     .Where(t => t.Message.Contains("same"));
         }
 

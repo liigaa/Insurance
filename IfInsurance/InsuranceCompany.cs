@@ -63,7 +63,7 @@ namespace IfInsurance
 
             if (validFrom < DateTime.Now)
             {
-                throw new DateException();
+                throw new InvalidDateException();
             }
 
             foreach (var policy in _policies)
@@ -72,7 +72,7 @@ namespace IfInsurance
                 {
                     if ((validFrom <= policy.ValidTill && validFrom >= policy.ValidFrom) || (validTill >= policy.ValidFrom && validTill <= policy.ValidTill))
                     {
-                        throw new DateException("Can not be insurance in same period");
+                        throw new InvalidDateException("Can not be insurance in same period");
                     }
                 }
             }
