@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using IfInsurance.Exceptions;
+using System.Reflection;
 
 namespace IfInsurance
 {
@@ -10,13 +11,14 @@ namespace IfInsurance
     {
         private string _name;
         private IList<Risk> _availableRisks;
-        private IList<Policy> _policies;
+        private IList<IPolicy> _policies;
+        PremiumCalculation _premiumCalculation = new PremiumCalculation();
 
-        public InsuranceCompany(string name, IList<Risk> availableRisks, IList<Policy> policies)
+        public InsuranceCompany(string name, IList<Risk> availableRisks, IList<IPolicy> policies)
         {
             _name = name;
             _availableRisks = availableRisks;
-            _policies = policies;
+            _policies = policies;           
         }
 
         public string Name => _name;
@@ -27,7 +29,7 @@ namespace IfInsurance
             set => _availableRisks = value; 
         }
 
-        public IList<Policy> Policies
+        public IList<IPolicy> Policies
         {
             get => _policies;
             set => _policies = value;
@@ -35,23 +37,22 @@ namespace IfInsurance
 
         public void AddRisk(string nameOfInsuredObject, Risk risk, DateTime validFrom)
         {
-            foreach(Policy policy in _policies)
-            {
-                if(nameOfInsuredObject == policy.NameOfInsuredObject && validFrom >= policy.ValidFrom && validFrom <= policy.ValidTill)
-                {
-                    policy.InsuredRisks.Add(risk);
-                    var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
-                    policy.Premium += GetPremium(risk, (short)month);                   
-                    return;
-                }
-            }
+            var policy = FindPolicyWithInIntervalWithStartDate(nameOfInsuredObject, validFrom);
 
+            if (policy != null)
+            {
+                policy.InsuredRisks.Add(risk);
+                var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
+                _premiumCalculation.SetPremium(policy, risk, (short)month);
+                return;
+            }
+            
             throw new PolicyNotFoundException();
         }
 
         public IPolicy GetPolicy(string nameOfInsuredObject, DateTime effectiveDate)
         {
-            var policy = FindPolicy(nameOfInsuredObject, effectiveDate);
+            var policy = FindPolicyWithEfectiveDate(nameOfInsuredObject, effectiveDate);
             if (policy != null)
                 return policy;
             throw new PolicyNotFoundException();
@@ -66,31 +67,34 @@ namespace IfInsurance
                 throw new InvalidDateException();
             }
 
-            foreach (var policy in _policies)
+            var policy = FindPolicyWithInIntervalWithStartAndEndDate(nameOfInsuredObject, validFrom, validTill);
+
+            if (policy != null)
             {
-                if (policy.NameOfInsuredObject == nameOfInsuredObject)
-                {
-                    if ((validFrom <= policy.ValidTill && validFrom >= policy.ValidFrom) || (validTill >= policy.ValidFrom && validTill <= policy.ValidTill))
-                    {
-                        throw new InvalidDateException("Can not be insurance in same period");
-                    }
-                }
-            }
-           
-            var premium = selectedRisks.Sum(risk => GetPremium(risk, validMonths));
+                throw new InvalidDateException("Can not be new insurance in same period");
+            }            
+
+            var premium = selectedRisks.Sum(risk => _premiumCalculation.GetPremium(risk, validMonths));
             var soldPolicy =  new Policy(nameOfInsuredObject, validFrom, validTill, premium, selectedRisks);
             _policies.Add(soldPolicy);
             return soldPolicy;
         }
 
-        private IPolicy FindPolicy(string insuredObject, DateTime validFrom)
+        private IPolicy FindPolicyWithEfectiveDate(string insuredObject, DateTime efectiveDate)
         {
-            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom == validFrom);           
-        }       
-
-        private decimal GetPremium(Risk risk, short month)
+            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom == efectiveDate);           
+        }
+        
+        private IPolicy FindPolicyWithInIntervalWithStartDate(string insuredObject, DateTime validFrom)
         {
-            return risk.YearlyPrice / 12 * month;
+            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom <= validFrom && p.ValidTill > validFrom);
+        } 
+        
+        private IPolicy FindPolicyWithInIntervalWithStartAndEndDate(string insuredObject, DateTime validFrom, DateTime validTill)
+        {
+            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject
+                                                && p.ValidFrom <= validFrom && p.ValidTill >= validFrom
+                                                || p.ValidFrom <= validTill && p.ValidTill >= validTill);
         }
     }
 }

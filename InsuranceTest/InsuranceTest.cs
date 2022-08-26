@@ -13,7 +13,7 @@ namespace InsuranceTest
     {
         private IInsuranceCompany _insuranceCompany;
         private IList<Risk> _availableRisks;
-        private IList<Policy> _soldPolicies;       
+        private IList<IPolicy> _soldPolicies;       
         
         [SetUp]
         public void Setup()
@@ -24,14 +24,8 @@ namespace InsuranceTest
                 new Risk("Casko", 300),
                 new Risk("Home", 500)
             };
-            _soldPolicies = new List<Policy>();            
+            _soldPolicies = new List<IPolicy>();            
             _insuranceCompany = new InsuranceCompany("If", _availableRisks, _soldPolicies);
-
-           
-            //_availablePolicies = new List<Policy>
-            //{
-            //    new Policy("Car", new DateTime(2022,9,1), new DateTime(2023,1,1), 400, _availableRisks)
-            //};
         }
 
         [Test]
@@ -145,10 +139,10 @@ namespace InsuranceTest
             var newRisk = new Risk("Fire", 150);
             var date = new DateTime(2023, 1, 1);
             var policyObject = "Mazda";
-            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
+            var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 454, _availableRisks.Take(2).ToList());
             _soldPolicies.Add(policy);
             _insuranceCompany.AddRisk(policyObject, newRisk, date);           
-            _soldPolicies.Last().Premium.Should().Be(279);
+            _soldPolicies.Last().Premium.Should().Be(579);
         }
 
         [Test]
