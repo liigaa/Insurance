@@ -41,7 +41,7 @@ namespace IfInsurance
                 {
                     policy.InsuredRisks.Add(risk);
                     var month = ((policy.ValidTill.Year - validFrom.Year) * 12) + (policy.ValidTill.Month - validFrom.Month) + 1;
-                    GetChangedPremium((Policy)policy, risk, (short)month);
+                    policy.Premium += GetPremium(risk, (short)month);                   
                     return;
                 }
             }
@@ -76,8 +76,8 @@ namespace IfInsurance
                     }
                 }
             }
-
-            var premium = selectedRisks.Sum(risk => risk.YearlyPrice / 12 * validMonths);
+           
+            var premium = selectedRisks.Sum(risk => GetPremium(risk, validMonths));
             var soldPolicy =  new Policy(nameOfInsuredObject, validFrom, validTill, premium, selectedRisks);
             _policies.Add(soldPolicy);
             return soldPolicy;
@@ -85,22 +85,12 @@ namespace IfInsurance
 
         private IPolicy FindPolicy(string insuredObject, DateTime validFrom)
         {
-            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom == validFrom);
-            //^ tas pats kas apakšā
-            //foreach (var policy in _policies)
-            //{
-            //    if (policy.NameOfInsuredObject == insuredObject && policy.ValidFrom == validFrom)
-            //    {
-            //        return policy;
-            //    }
-            //}
-            //return null;
-        }
+            return _policies.FirstOrDefault(p => p.NameOfInsuredObject == insuredObject && p.ValidFrom == validFrom);           
+        }       
 
-        private void GetChangedPremium(Policy policy, Risk risks, short month)
-        {           
-            var premiumForNewRisk = risks.YearlyPrice / 12 * month;
-            policy.Premium += premiumForNewRisk;
+        private decimal GetPremium(Risk risk, short month)
+        {
+            return risk.YearlyPrice / 12 * month;
         }
     }
 }
