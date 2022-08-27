@@ -44,6 +44,7 @@ namespace InsuranceTest
         public void Company_Add_AvailableRisk()
         {
             _availableRisks.Add(new Risk("Injuries", 150));
+
             _insuranceCompany.AvailableRisks.Should().BeEquivalentTo(_availableRisks);
         }
 
@@ -52,6 +53,7 @@ namespace InsuranceTest
         {
             var risks = _availableRisks.Take(2).ToList();
             _insuranceCompany.SellPolicy("House", new DateTime(2022, 10, 1), 12, risks);
+
             _soldPolicies.Count.Should().Be(1);
             _soldPolicies.First().InsuredRisks.Should().BeEquivalentTo(risks);
         }
@@ -60,15 +62,17 @@ namespace InsuranceTest
         public void Company_GetPremium_When_Sell_Policy()
         {
             var risks = _availableRisks.Take(3).ToList();
-            _insuranceCompany.SellPolicy("House", new DateTime(2022, 10, 1), 12, risks);          
+            _insuranceCompany.SellPolicy("House", new DateTime(2022, 10, 1), 12, risks);   
+            
             _soldPolicies.Last().Premium.Should().Be(954);
         }
 
         [Test]
         public void Company_Dont_Sell_Policy_In_Past()
         {
-            var risks = _availableRisks.Take(2).ToList();           
-                _insuranceCompany.Invoking(x => x.SellPolicy("House", new DateTime(2022, 8, 1), 12, risks))
+            var risks = _availableRisks.Take(2).ToList();      
+            
+            _insuranceCompany.Invoking(x => x.SellPolicy("House", new DateTime(2022, 8, 1), 12, risks))
                 .Should()
                 .Throw<InvalidDateException>()
                 .WithMessage("*past");                       
@@ -81,6 +85,7 @@ namespace InsuranceTest
             var date = new DateTime(2022, 11, 1);
             var policyObject = "House";
             _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
+
             _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
                     .Should()
                     .Throw<InvalidDateException>()
@@ -94,6 +99,7 @@ namespace InsuranceTest
             var date = new DateTime(2022, 9, 1);
             var policyObject = "House";
             _soldPolicies.Add(new Policy("House", new DateTime(2022, 10, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
+
             _insuranceCompany.Invoking(x => x.SellPolicy(policyObject, date, 12, risks))
                     .Should()
                     .Throw<InvalidDateException>()
@@ -106,6 +112,7 @@ namespace InsuranceTest
             var date = new DateTime(2022, 11, 1);
             var policyObject = "Mazda";
             _soldPolicies.Add(new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 450, _availableRisks));
+
             _insuranceCompany.GetPolicy(policyObject, date).Should().NotBeNull();
         }
 
@@ -130,6 +137,7 @@ namespace InsuranceTest
             var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
             _soldPolicies.Add(policy);
             _insuranceCompany.AddRisk(policyObject, newRisk, date);
+
             policy.InsuredRisks.Count.Should().Be(2);
         }
 
@@ -141,7 +149,8 @@ namespace InsuranceTest
             var policyObject = "Mazda";
             var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 454, _availableRisks.Take(2).ToList());
             _soldPolicies.Add(policy);
-            _insuranceCompany.AddRisk(policyObject, newRisk, date);           
+            _insuranceCompany.AddRisk(policyObject, newRisk, date);      
+            
             _soldPolicies.Last().Premium.Should().Be(579);
         }
 
@@ -153,6 +162,7 @@ namespace InsuranceTest
             var policyObject = "Mazda";
             var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
             _soldPolicies.Add(policy);
+
             _insuranceCompany.Invoking(x => x.AddRisk(policyObject, newRisk, date))
                     .Should()
                     .Throw<PolicyNotFoundException>()
@@ -167,6 +177,7 @@ namespace InsuranceTest
             var policyObject = "Renault";
             var policy = new Policy("Mazda", new DateTime(2022, 11, 1), new DateTime(2023, 10, 31), 154, _availableRisks.Take(1).ToList());
             _soldPolicies.Add(policy);
+
             _insuranceCompany.Invoking(x => x.AddRisk(policyObject, newRisk, date))
                     .Should()
                     .Throw<PolicyNotFoundException>()
