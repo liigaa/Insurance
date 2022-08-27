@@ -23,26 +23,14 @@ namespace IfInsurance
             _insuredRisks = insuredRisks;
         }
 
-        public Policy()
-        {
-        }
-
         public string NameOfInsuredObject => _nameOfInsuredObject;
 
         public DateTime ValidFrom => _validFrom;
 
         public DateTime ValidTill => _validTill;
 
-        public decimal Premium
-        {
-            get => _premium;
-        }
-
-        public IList<Risk> InsuredRisks => _insuredRisks;
-
-        public decimal GetPremium(Risk risk, short month)
-        {
-            return risk.YearlyPrice / 12 * month;
-        }
+        public decimal Premium => _premium;
+                
+        public IList<Risk> InsuredRisks => _insuredRisks;       
     }
 }

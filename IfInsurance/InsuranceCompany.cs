@@ -29,12 +29,6 @@ namespace IfInsurance
             set => _availableRisks = value; 
         }
 
-        public IList<IPolicy> Policies
-        {
-            get => _policies;
-            set => _policies = value;
-        }
-
         public void AddRisk(string nameOfInsuredObject, Risk risk, DateTime validFrom)
         {
             var policy = FindPolicyWithInIntervalWithStartDate(nameOfInsuredObject, validFrom);

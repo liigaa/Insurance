@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace IfInsurance
 {
-    public class PremiumCalculation
-    {
+    public class PremiumCalculation : IPremiumCalculation
+    {        
         public void SetPremium(IPolicy policy, Risk risk, short month)
         {
             FieldInfo fieldInfo = typeof(Policy).GetField("_premium", BindingFlags.Instance | BindingFlags.NonPublic);
